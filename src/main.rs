@@ -25,7 +25,7 @@ fn day1_1(input: &str) -> String {
 #[test]
 fn test_day_1_1() {
     let input = read_file_as_string("./input/day_1.txt");
-    assert_eq!("1203".to_string(), day1_1(&input));
+    assert_eq!("1203", &day1_1(&input));
 }
 
 fn day1_2(input: &str) -> String {
@@ -50,7 +50,7 @@ fn day1_2(input: &str) -> String {
 #[test]
 fn test_day_1_2() {
     let input = read_file_as_string("./input/day_1.txt");
-    assert_eq!("1146".to_string(), day1_2(&input));
+    assert_eq!("1146", &day1_2(&input));
 }
 
 fn day2_1(input: &str) -> String {
@@ -74,7 +74,7 @@ fn day2_1(input: &str) -> String {
 #[test]
 fn test_day_2_1() {
     let input = read_file_as_string("./input/day_2.txt");
-    assert_eq!("48357".to_string(), day2_1(&input));
+    assert_eq!("48357", &day2_1(&input));
 }
 
 fn day2_2(input: &str) -> String {
@@ -105,7 +105,7 @@ fn day2_2(input: &str) -> String {
 #[test]
 fn test_day_2_2() {
     let input = read_file_as_string("./input/day_2.txt");
-    assert_eq!("351".to_string(), day2_2(&input));
+    assert_eq!("351", &day2_2(&input));
 }
 
 fn read_file_as_string(name: &str) -> String {
