@@ -130,11 +130,19 @@ fn day_4_2(input: &str) -> usize {
         .lines()
         .filter(|l| {
             l.split_whitespace()
-                .map(|w| w.bytes().collect::<HashSet<_>>())
+                .map(|w| {
+                    let mut c = w.bytes().collect::<Vec<_>>();
+                    c.sort();
+                    c
+                })
                 .collect::<HashSet<_>>()
                 .len()
                 == l.split_whitespace()
-                    .map(|w| w.bytes().collect::<HashSet<_>>())
+                    .map(|w| {
+                        let mut c = w.bytes().collect::<Vec<_>>();
+                        c.sort();
+                        c
+                    })
                     .collect::<Vec<_>>()
                     .len()
         })
@@ -144,11 +152,14 @@ fn day_4_2(input: &str) -> usize {
 #[test]
 fn test_day_4_2() {
     let input = read_file_as_string("./input/day_4.txt");
-    assert_eq!(386, day_4_2(&input));
+    assert_eq!(208, day_4_2(&input));
 }
 
 fn read_file_as_string(name: &str) -> String {
     let mut input = String::new();
-    File::open(name).unwrap().read_to_string(&mut input);
+    File::open(name)
+        .unwrap()
+        .read_to_string(&mut input)
+        .unwrap();
     input
 }
