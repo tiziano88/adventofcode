@@ -1,7 +1,8 @@
 #![feature(slice_rotate)]
 
+use std::collections::HashSet;
 use std::fs::File;
-use std::io::{self, Read};
+use std::io::Read;
 
 fn day1_1(input: &str) -> String {
     let chars: Vec<u32> = input.chars().filter_map(|c| c.to_digit(10)).collect();
@@ -106,6 +107,44 @@ fn day2_2(input: &str) -> String {
 fn test_day_2_2() {
     let input = read_file_as_string("./input/day_2.txt");
     assert_eq!("351", &day2_2(&input));
+}
+
+fn day_4_1(input: &str) -> usize {
+    input
+        .lines()
+        .filter(|l| {
+            l.split_whitespace().collect::<HashSet<_>>().len()
+                == l.split_whitespace().collect::<Vec<_>>().len()
+        })
+        .count()
+}
+
+#[test]
+fn test_day_4_1() {
+    let input = read_file_as_string("./input/day_4.txt");
+    assert_eq!(386, day_4_1(&input));
+}
+
+fn day_4_2(input: &str) -> usize {
+    input
+        .lines()
+        .filter(|l| {
+            l.split_whitespace()
+                .map(|w| w.bytes().collect::<HashSet<_>>())
+                .collect::<HashSet<_>>()
+                .len()
+                == l.split_whitespace()
+                    .map(|w| w.bytes().collect::<HashSet<_>>())
+                    .collect::<Vec<_>>()
+                    .len()
+        })
+        .count()
+}
+
+#[test]
+fn test_day_4_2() {
+    let input = read_file_as_string("./input/day_4.txt");
+    assert_eq!(386, day_4_2(&input));
 }
 
 fn read_file_as_string(name: &str) -> String {
