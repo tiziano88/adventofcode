@@ -57,9 +57,7 @@ fn test_day_1_2() {
 fn day2_1(input: &str) -> String {
     let rows: Vec<Vec<u32>> = input
         .lines()
-        .map(|l| {
-            l.split_whitespace().map(|c| c.parse().unwrap()).collect()
-        })
+        .map(|l| l.split_whitespace().map(|c| c.parse().unwrap()).collect())
         .collect();
 
     let res: u32 = rows.iter()
@@ -81,9 +79,7 @@ fn test_day_2_1() {
 fn day2_2(input: &str) -> String {
     let rows: Vec<Vec<u32>> = input
         .lines()
-        .map(|l| {
-            l.split_whitespace().map(|c| c.parse().unwrap()).collect()
-        })
+        .map(|l| l.split_whitespace().map(|c| c.parse().unwrap()).collect())
         .collect();
 
     let res: u32 = rows.iter()
@@ -153,6 +149,56 @@ fn day_4_2(input: &str) -> usize {
 fn test_day_4_2() {
     let input = read_file_as_string("./input/day_4.txt");
     assert_eq!(208, day_4_2(&input));
+}
+
+fn day_5_1(input: &str) -> usize {
+    let mut instructions = input
+        .lines()
+        .map(|l| l.parse::<i32>().unwrap())
+        .collect::<Vec<_>>();
+
+    let mut n = 0;
+    let mut i = 0i32;
+    while i >= 0 && i < (instructions.len() as i32) {
+        n += 1;
+        let instruction = instructions[i as usize];
+        instructions[i as usize] += 1;
+        i += instruction;
+    }
+    n
+}
+
+#[test]
+fn test_day_5_1() {
+    let input = read_file_as_string("./input/day_5.txt");
+    assert_eq!(318883, day_5_1(&input));
+}
+
+fn day_5_2(input: &str) -> usize {
+    let mut instructions = input
+        .lines()
+        .map(|l| l.parse::<i32>().unwrap())
+        .collect::<Vec<_>>();
+
+    let mut n = 0;
+    let mut i = 0i32;
+    while i >= 0 && i < (instructions.len() as i32) {
+        n += 1;
+        let instruction = instructions[i as usize];
+        if instruction >= 3 {
+            instructions[i as usize] -= 1;
+        } else {
+            instructions[i as usize] += 1;
+        }
+        i += instruction;
+    }
+    n
+}
+
+#[test]
+fn test_day_5_2() {
+    let input = read_file_as_string("./input/day_5.txt");
+    assert_eq!(23948711, day_5_2(&input));
 }
 
 fn read_file_as_string(name: &str) -> String {
