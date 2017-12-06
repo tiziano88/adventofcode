@@ -263,7 +263,7 @@ fn day_6_2(input: &str) -> usize {
             banks[(max_index + 1 + i) % num_banks] += 1;
         }
     }
-    n - seen.get(&banks).unwrap()
+    n - seen[&banks]
 }
 
 #[test]
