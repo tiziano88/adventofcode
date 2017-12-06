@@ -105,6 +105,135 @@ fn test_day_2_2() {
     assert_eq!("351", &day2_2(&input));
 }
 
+fn day_3_1(input: usize) -> usize {
+    const MAX_SIZE: usize = 1000;
+    let mut cols = Vec::<Vec<usize>>::with_capacity(MAX_SIZE);
+    for _ in 0..MAX_SIZE {
+        let mut col = Vec::<usize>::with_capacity(MAX_SIZE);
+        for _ in 0..MAX_SIZE {
+            col.push(0);
+        }
+        cols.push(col);
+    }
+
+    struct Pos {
+        x: i32,
+        y: i32,
+    }
+
+    fn get(cols: &Vec<Vec<usize>>, pos: &Pos) -> usize {
+        cols[(pos.x + MAX_SIZE as i32 / 2) as usize][(pos.y + MAX_SIZE as i32 / 2) as usize]
+    }
+    fn set(cols: &mut Vec<Vec<usize>>, pos: &Pos, v: usize) {
+        cols[(pos.x + MAX_SIZE as i32 / 2) as usize][(pos.y + MAX_SIZE as i32 / 2) as usize] = v
+    }
+
+    // (dx, dy)
+    let dirs = [(1, 0), (0, 1), (-1, 0), (0, -1)];
+
+    let mut current_dir_index = 0;
+    let mut current_pos: Pos = Pos { x: 0, y: 0 };
+
+    set(&mut cols, &current_pos, 1);
+
+    for i in 2..input + 1 {
+        let current_dir = dirs[current_dir_index];
+        current_pos.x += current_dir.0;
+        current_pos.y += current_dir.1;
+
+        set(&mut cols, &current_pos, i);
+
+        let tentative_dir = dirs[(current_dir_index + 1) % dirs.len()];
+        let tentative_pos = Pos {
+            x: current_pos.x + tentative_dir.0,
+            y: current_pos.y + tentative_dir.1,
+        };
+
+        if get(&cols, &tentative_pos) == 0 {
+            current_dir_index = (current_dir_index + 1) % dirs.len();
+        }
+    }
+
+    (current_pos.x.abs() + current_pos.y.abs()) as usize
+}
+
+#[test]
+fn test_day_3_1() {
+    assert_eq!(480, day_3_1(347991));
+}
+
+fn day_3_2(input: usize) -> usize {
+    const MAX_SIZE: usize = 1000;
+    let mut cols = Vec::<Vec<usize>>::with_capacity(MAX_SIZE);
+    for _ in 0..MAX_SIZE {
+        let mut col = Vec::<usize>::with_capacity(MAX_SIZE);
+        for _ in 0..MAX_SIZE {
+            col.push(0);
+        }
+        cols.push(col);
+    }
+
+    struct Pos {
+        x: i32,
+        y: i32,
+    }
+
+    fn get(cols: &Vec<Vec<usize>>, pos: &Pos) -> usize {
+        cols[(pos.x + MAX_SIZE as i32 / 2) as usize][(pos.y + MAX_SIZE as i32 / 2) as usize]
+    }
+    fn sum_adjacent(cols: &Vec<Vec<usize>>, pos: &Pos) -> usize {
+        let mut res = 0;
+        for dx in [-1, 0, 1].iter() {
+            for dy in [-1, 0, 1].iter() {
+                let pos2 = Pos {
+                    x: pos.x + dx,
+                    y: pos.y + dy,
+                };
+                res += get(cols, &pos2);
+            }
+        }
+        res
+    }
+    fn set(cols: &mut Vec<Vec<usize>>, pos: &Pos, v: usize) {
+        cols[(pos.x + MAX_SIZE as i32 / 2) as usize][(pos.y + MAX_SIZE as i32 / 2) as usize] = v
+    }
+
+    // (dx, dy)
+    let dirs = [(1, 0), (0, 1), (-1, 0), (0, -1)];
+
+    let mut current_dir_index = 0;
+    let mut current_pos: Pos = Pos { x: 0, y: 0 };
+
+    set(&mut cols, &current_pos, 1);
+
+    loop {
+        let current_dir = dirs[current_dir_index];
+        current_pos.x += current_dir.0;
+        current_pos.y += current_dir.1;
+
+        let sum = sum_adjacent(&cols, &current_pos);
+        set(&mut cols, &current_pos, sum);
+        if sum > input {
+            return sum;
+        }
+
+        let tentative_dir = dirs[(current_dir_index + 1) % dirs.len()];
+        let tentative_pos = Pos {
+            x: current_pos.x + tentative_dir.0,
+            y: current_pos.y + tentative_dir.1,
+        };
+
+        if get(&cols, &tentative_pos) == 0 {
+            current_dir_index = (current_dir_index + 1) % dirs.len();
+        }
+    }
+}
+
+#[test]
+fn test_day_3_2() {
+    assert_eq!(349975, day_3_2(347991));
+}
+
 fn day_4_1(input: &str) -> usize {
     input
         .lines()
