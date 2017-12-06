@@ -1,6 +1,6 @@
 #![feature(slice_rotate)]
 
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use std::fs::File;
 use std::io::Read;
 
@@ -199,6 +199,77 @@ fn day_5_2(input: &str) -> usize {
 fn test_day_5_2() {
     let input = read_file_as_string("./input/day_5.txt");
     assert_eq!(23948711, day_5_2(&input));
+}
+
+fn day_6_1(input: &str) -> usize {
+    let mut banks = input
+        .split_whitespace()
+        .map(|c| c.parse::<usize>().unwrap())
+        .collect::<Vec<_>>();
+    let num_banks = banks.len();
+
+    let mut seen = HashSet::<Vec<usize>>::new();
+    let mut n = 0;
+
+    while !seen.contains(&banks) {
+        seen.insert(banks.clone());
+        n += 1;
+
+        let mut max_index = 0usize;
+        for i in 0..banks.len() {
+            if banks[i] > banks[max_index] {
+                max_index = i;
+            }
+        }
+        let blocks = banks[max_index];
+        banks[max_index] = 0;
+        for i in 0..blocks {
+            banks[(max_index + 1 + i) % num_banks] += 1;
+        }
+    }
+    n
+}
+
+#[test]
+fn test_day_6_1() {
+    let input = read_file_as_string("./input/day_6.txt");
+    assert_eq!(11137, day_6_1(&input));
+}
+
+
+fn day_6_2(input: &str) -> usize {
+    let mut banks = input
+        .split_whitespace()
+        .map(|c| c.parse::<usize>().unwrap())
+        .collect::<Vec<_>>();
+    let num_banks = banks.len();
+
+    let mut seen = HashMap::<Vec<usize>, usize>::new();
+    let mut n = 0;
+
+    while !seen.contains_key(&banks) {
+        seen.insert(banks.clone(), n);
+        n += 1;
+
+        let mut max_index = 0usize;
+        for i in 0..banks.len() {
+            if banks[i] > banks[max_index] {
+                max_index = i;
+            }
+        }
+        let blocks = banks[max_index];
+        banks[max_index] = 0;
+        for i in 0..blocks {
+            banks[(max_index + 1 + i) % num_banks] += 1;
+        }
+    }
+    n - seen.get(&banks).unwrap()
+}
+
+#[test]
+fn test_day_6_2() {
+    let input = read_file_as_string("./input/day_6.txt");
+    assert_eq!(1037, day_6_2(&input));
 }
 
 fn read_file_as_string(name: &str) -> String {
