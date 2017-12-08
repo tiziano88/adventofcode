@@ -57,7 +57,9 @@ fn test_day_1_2() {
 fn day2_1(input: &str) -> String {
     let rows: Vec<Vec<u32>> = input
         .lines()
-        .map(|l| l.split_whitespace().map(|c| c.parse().unwrap()).collect())
+        .map(|l| {
+            l.split_whitespace().map(|c| c.parse().unwrap()).collect()
+        })
         .collect();
 
     let res: u32 = rows.iter()
@@ -79,7 +81,9 @@ fn test_day_2_1() {
 fn day2_2(input: &str) -> String {
     let rows: Vec<Vec<u32>> = input
         .lines()
-        .map(|l| l.split_whitespace().map(|c| c.parse().unwrap()).collect())
+        .map(|l| {
+            l.split_whitespace().map(|c| c.parse().unwrap()).collect()
+        })
         .collect();
 
     let res: u32 = rows.iter()
@@ -365,7 +369,6 @@ fn test_day_6_1() {
     assert_eq!(11137, day_6_1(&input));
 }
 
-
 fn day_6_2(input: &str) -> usize {
     let mut banks = input
         .split_whitespace()
@@ -399,6 +402,52 @@ fn day_6_2(input: &str) -> usize {
 fn test_day_6_2() {
     let input = read_file_as_string("./input/day_6.txt");
     assert_eq!(1037, day_6_2(&input));
+}
+
+struct Node {
+    parent: Option<String>,
+}
+
+fn day_7_1(input: &str) -> String {
+    let mut nodes = HashMap::<String, Node>::new();
+    for l in input.lines() {
+        let fields = l.split_whitespace().collect::<Vec<_>>();
+
+        let parent = fields[0].to_string();
+        if !nodes.contains_key(&parent) {
+            nodes.insert(parent.clone(), Node { parent: None });
+        }
+
+        let children = fields.iter().skip(3).map(|f| f.replace(",", ""));
+        for child in children {
+            nodes.insert(
+                child.clone(),
+                Node {
+                    parent: Some(parent.clone()),
+                },
+            );
+        }
+    }
+
+    let mut current = nodes.keys().next().unwrap().clone();
+    loop {
+        match nodes[&current].parent {
+            Some(ref n) => {
+                current = n.clone();
+            }
+            None => {
+                break;
+            }
+        }
+    }
+
+    current
+}
+
+#[test]
+fn test_day_7_1() {
+    let input = read_file_as_string("./input/day_7.txt");
+    assert_eq!("cyrupz", &day_7_1(&input));
 }
 
 fn read_file_as_string(name: &str) -> String {
