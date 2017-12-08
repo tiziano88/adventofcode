@@ -404,11 +404,11 @@ fn test_day_6_2() {
     assert_eq!(1037, day_6_2(&input));
 }
 
-struct Node {
-    parent: Option<String>,
-}
-
 fn day_7_1(input: &str) -> String {
+    struct Node {
+        parent: Option<String>,
+    }
+
     let mut nodes = HashMap::<String, Node>::new();
     for l in input.lines() {
         let fields = l.split_whitespace().collect::<Vec<_>>();
@@ -448,6 +448,151 @@ fn day_7_1(input: &str) -> String {
 fn test_day_7_1() {
     let input = read_file_as_string("./input/day_7.txt");
     assert_eq!("cyrupz", &day_7_1(&input));
+}
+
+fn day_8_1(input: &str) -> i32 {
+    struct Instruction {
+        target: String,
+        operation: String,
+        amount: String,
+
+        left: String,
+        comparison: String,
+        right: String,
+    }
+
+    impl std::str::FromStr for Instruction {
+        type Err = ();
+        fn from_str(s: &str) -> Result<Self, Self::Err> {
+            let fields = s.split_whitespace().collect::<Vec<_>>();
+
+            Ok(Instruction {
+                target: fields[0].to_string(),
+                operation: fields[1].to_string(),
+                amount: fields[2].to_string(),
+                left: fields[4].to_string(),
+                comparison: fields[5].to_string(),
+                right: fields[6].to_string(),
+            })
+        }
+    }
+
+    let mut env = HashMap::<String, i32>::new();
+
+    fn eval(env: &HashMap<String, i32>, s: &str) -> i32 {
+        match s.parse::<i32>() {
+            Ok(v) => v,
+            Err(_) => *env.get(s).unwrap_or(&0),
+        }
+    }
+
+    let instructions = input.lines().map(|l| l.parse::<Instruction>().unwrap());
+    for instruction in instructions {
+        let eval_left = eval(&env, &instruction.left);
+        let eval_right = eval(&env, &instruction.right);
+        let ok = match instruction.comparison.as_ref() {
+            "==" => eval_left == eval_right,
+            "!=" => eval_left != eval_right,
+            "<" => eval_left < eval_right,
+            "<=" => eval_left <= eval_right,
+            ">" => eval_left > eval_right,
+            ">=" => eval_left >= eval_right,
+            _ => false,
+        };
+        if ok {
+            let cur = eval(&env, &instruction.target);
+            let amount = instruction.amount.parse::<i32>().unwrap();
+            let res = match instruction.operation.as_ref() {
+                "inc" => cur + amount,
+                "dec" => cur - amount,
+                _ => cur,
+            };
+            env.insert(instruction.target, res);
+        };
+    }
+
+    env.values().cloned().fold(i32::min_value(), i32::max)
+}
+
+#[test]
+fn test_day_8_1() {
+    let input = read_file_as_string("./input/day_8.txt");
+    assert_eq!(5075, day_8_1(&input));
+}
+
+fn day_8_2(input: &str) -> i32 {
+    struct Instruction {
+        target: String,
+        operation: String,
+        amount: String,
+
+        left: String,
+        comparison: String,
+        right: String,
+    }
+
+    impl std::str::FromStr for Instruction {
+        type Err = ();
+        fn from_str(s: &str) -> Result<Self, Self::Err> {
+            let fields = s.split_whitespace().collect::<Vec<_>>();
+
+            Ok(Instruction {
+                target: fields[0].to_string(),
+                operation: fields[1].to_string(),
+                amount: fields[2].to_string(),
+                left: fields[4].to_string(),
+                comparison: fields[5].to_string(),
+                right: fields[6].to_string(),
+            })
+        }
+    }
+
+    let mut env = HashMap::<String, i32>::new();
+
+    fn eval(env: &HashMap<String, i32>, s: &str) -> i32 {
+        match s.parse::<i32>() {
+            Ok(v) => v,
+            Err(_) => *env.get(s).unwrap_or(&0),
+        }
+    }
+
+    let mut max = i32::min_value();
+
+    let instructions = input.lines().map(|l| l.parse::<Instruction>().unwrap());
+    for instruction in instructions {
+        let eval_left = eval(&env, &instruction.left);
+        let eval_right = eval(&env, &instruction.right);
+        let ok = match instruction.comparison.as_ref() {
+            "==" => eval_left == eval_right,
+            "!=" => eval_left != eval_right,
+            "<" => eval_left < eval_right,
+            "<=" => eval_left <= eval_right,
+            ">" => eval_left > eval_right,
+            ">=" => eval_left >= eval_right,
+            _ => false,
+        };
+        if ok {
+            let cur = eval(&env, &instruction.target);
+            let amount = instruction.amount.parse::<i32>().unwrap();
+            let res = match instruction.operation.as_ref() {
+                "inc" => cur + amount,
+                "dec" => cur - amount,
+                _ => cur,
+            };
+            if res > max {
+                max = res
+            }
+            env.insert(instruction.target, res);
+        };
+    }
+
+    max
+}
+
+#[test]
+fn test_day_8_2() {
+    let input = read_file_as_string("./input/day_8.txt");
+    assert_eq!(7310, day_8_2(&input));
 }
 
 fn read_file_as_string(name: &str) -> String {
