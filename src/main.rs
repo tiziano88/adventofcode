@@ -595,6 +595,83 @@ fn test_day_8_2() {
     assert_eq!(7310, day_8_2(&input));
 }
 
+fn day_9_1(input: &str) -> usize {
+    let mut score = 0;
+    enum State {
+        InGroup(usize),
+        InGarbage(usize),
+        Escape(usize),
+    }
+    let mut state = State::InGroup(0);
+    for c in input.chars() {
+        match state {
+            State::InGroup(n) => match c {
+                '{' => state = State::InGroup(n + 1),
+                '}' => {
+                    state = State::InGroup(n - 1);
+                    score += n;
+                }
+                '<' => state = State::InGarbage(n),
+                _ => (),
+            },
+            State::InGarbage(n) => match c {
+                '!' => state = State::Escape(n),
+                '>' => state = State::InGroup(n),
+                _ => (),
+            },
+            State::Escape(n) => state = State::InGarbage(n),
+        };
+    }
+    score
+}
+
+#[test]
+fn test_day_9_1() {
+    assert_eq!(1, day_9_1("{}"));
+    assert_eq!(6, day_9_1("{{{}}}"));
+    assert_eq!(5, day_9_1("{{}{}}"));
+    assert_eq!(16, day_9_1("{{{},{},{{}}}}"));
+    assert_eq!(1, day_9_1("{<a>,<a>,<a>,<a>}"));
+    assert_eq!(9, day_9_1("{{<ab>},{<ab>},{<ab>},{<ab>}}"));
+    assert_eq!(9, day_9_1("{{<!!>},{<!!>},{<!!>},{<!!>}}"));
+    assert_eq!(3, day_9_1("{{<a!>},{<a!>},{<a!>},{<ab>}}"));
+    let input = read_file_as_string("./input/day_9.txt");
+    assert_eq!(14212, day_9_1(&input));
+}
+
+fn day_9_2(input: &str) -> usize {
+    let mut score = 0;
+    enum State {
+        InGroup(usize),
+        InGarbage(usize),
+        Escape(usize),
+    }
+    let mut state = State::InGroup(0);
+    for c in input.chars() {
+        match state {
+            State::InGroup(n) => match c {
+                '{' => state = State::InGroup(n + 1),
+                '}' => state = State::InGroup(n - 1),
+                '<' => state = State::InGarbage(n),
+                _ => (),
+            },
+            State::InGarbage(n) => match c {
+                '!' => state = State::Escape(n),
+                '>' => state = State::InGroup(n),
+                _ => score += 1,
+            },
+            State::Escape(n) => state = State::InGarbage(n),
+        };
+    }
+    score
+}
+
+#[test]
+fn test_day_9_2() {
+    let input = read_file_as_string("./input/day_9.txt");
+    assert_eq!(6569, day_9_2(&input));
+}
+
 fn read_file_as_string(name: &str) -> String {
     let mut input = String::new();
     File::open(name)
