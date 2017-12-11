@@ -672,6 +672,68 @@ fn test_day_9_2() {
     assert_eq!(6569, day_9_2(&input));
 }
 
+fn day_10_1(input: &str) -> usize {
+    let mut current = (0..256).collect::<Vec<usize>>();
+    let mut position = 0;
+    let mut skip_size = 0;
+    for l in input.trim().split(",").map(|v| v.parse::<usize>().unwrap()) {
+        for s in 0..(l / 2) {
+            let a = (position + s) % current.len();
+            let b = (position + (l - 1 - s)) % current.len();
+            let t = current[b];
+            current[b] = current[a];
+            current[a] = t;
+        }
+        position = (position + l + skip_size) % current.len();
+        skip_size += 1;
+    }
+    current[0] * current[1]
+}
+
+#[test]
+fn test_day_10_1() {
+    let input = read_file_as_string("./input/day_10.txt");
+    assert_eq!(6569, day_10_1(&input));
+}
+
+fn day_10_2(input: &str) -> String {
+    let mut current = (0..256).collect::<Vec<usize>>();
+    let mut position = 0;
+    let mut skip_size = 0;
+    let mut lengths = input.trim().bytes().map(|v| v as usize).collect::<Vec<_>>();
+    lengths.extend([17, 31, 73, 47, 23].iter());
+
+    for _ in 0..64 {
+        for l in lengths.iter() {
+            for s in 0..(l / 2) {
+                let a = (position + s) % current.len();
+                let b = (position + (l - 1 - s)) % current.len();
+                let t = current[b];
+                current[b] = current[a];
+                current[a] = t;
+            }
+            position = (position + l + skip_size) % current.len();
+            skip_size += 1;
+        }
+    }
+
+    let mut out = String::new();
+    for c in current.chunks(16).map(|xs| xs.iter().fold(0, |a, b| a ^ b)) {
+        out += &format!("{:02x}", c);
+    }
+    out
+}
+
+#[test]
+fn test_day_10_2() {
+    assert_eq!("a2582a3a0e66e6e86e3812dcb672a272", day_10_2(""));
+    assert_eq!("33efeb34ea91902bb2f59c9920caa6cd", day_10_2("AoC 2017"));
+    assert_eq!("3efbe78a8d82f29979031a4aa0b16a9d", day_10_2("1,2,3"));
+    assert_eq!("63960835bcdc130f0b66d7ff4f6a5a8e", day_10_2("1,2,4"));
+    let input = read_file_as_string("./input/day_10.txt");
+    assert_eq!("96de9657665675b51cd03f0b3528ba26", day_10_2(&input));
+}
+
 fn read_file_as_string(name: &str) -> String {
     let mut input = String::new();
     File::open(name)
