@@ -1,8 +1,10 @@
 #![feature(slice_rotate)]
 
 use std::collections::{HashMap, HashSet};
+use std::collections::hash_map::RandomState;
 use std::fs::File;
 use std::io::Read;
+use std::iter::FromIterator;
 
 fn day1_1(input: &str) -> String {
     let chars: Vec<u32> = input.chars().filter_map(|c| c.to_digit(10)).collect();
@@ -732,6 +734,34 @@ fn test_day_10_2() {
     assert_eq!("63960835bcdc130f0b66d7ff4f6a5a8e", day_10_2("1,2,4"));
     let input = read_file_as_string("./input/day_10.txt");
     assert_eq!("96de9657665675b51cd03f0b3528ba26", day_10_2(&input));
+}
+
+fn day_13_1(input: &str) -> usize {
+    let entries = input.lines().map(|l| {
+        let vs = l.split(": ").collect::<Vec<_>>();
+        (
+            vs[0].parse::<usize>().unwrap(),
+            vs[1].parse::<usize>().unwrap(),
+        )
+    });
+    let m = HashMap::<_, _, RandomState>::from_iter(entries);
+    let mut severity = 0usize;
+    for step in 0..89 {
+        if let Some(depth) = m.get(&step) {
+            if step % ((depth - 1) * 2) == 0 {
+                severity += step * depth;
+            }
+        }
+    }
+    severity
+}
+
+#[test]
+fn test_day_13_1() {
+    assert_eq!(24, day_13_1("0: 3\n1: 2\n4: 4\n6: 4"));
+    let input = read_file_as_string("./input/day_13.txt");
+    // 3476 too high
+    assert_eq!(111, day_13_1(&input));
 }
 
 fn read_file_as_string(name: &str) -> String {
