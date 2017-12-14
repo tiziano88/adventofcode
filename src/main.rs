@@ -791,6 +791,61 @@ fn test_day_12_1() {
     assert_eq!(130, day_12_1(&input));
 }
 
+fn day_12_2(input: &str) -> usize {
+    let mut graph = HashMap::<usize, HashSet<usize>>::new();
+
+    fn insert_edge(graph: &mut HashMap<usize, HashSet<usize>>, from: usize, to: usize) {
+        graph
+            .entry(from)
+            .or_insert(HashSet::<usize>::new())
+            .insert(to);
+    }
+
+    for l in input.lines() {
+        let fields = l.split_whitespace().collect::<Vec<_>>();
+        let left = fields[0].parse::<usize>().unwrap();
+        let rights = fields
+            .iter()
+            .skip(2)
+            .map(|f| f.replace(",", "").parse::<usize>().unwrap());
+        for r in rights {
+            insert_edge(&mut graph, left, r);
+            insert_edge(&mut graph, r, left);
+        }
+    }
+
+    let mut group = 0;
+
+    let mut visited = HashSet::<usize>::new();
+    let mut stack = Vec::<usize>::new();
+
+    for k in graph.keys() {
+        if visited.contains(k) {
+            continue;
+        }
+        group += 1;
+        stack.push(*k);
+        while let Some(x) = stack.pop() {
+            visited.insert(x);
+            if let Some(nodes) = graph.get(&x) {
+                for node in nodes {
+                    if !visited.contains(node) {
+                        stack.push(*node);
+                    }
+                }
+            }
+        }
+    }
+
+    group
+}
+
+#[test]
+fn test_day_12_2() {
+    let input = read_file_as_string("./input/day_12.txt");
+    assert_eq!(189, day_12_2(&input));
+}
+
 fn day_13_1(input: &str) -> usize {
     let entries = input.lines().map(|l| {
         let vs = l.split(": ").collect::<Vec<_>>();
