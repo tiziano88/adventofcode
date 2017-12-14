@@ -1,7 +1,7 @@
 #![feature(slice_rotate)]
 
 use std::collections::{HashMap, HashSet};
-use std::collections::hash_map::RandomState;
+use std::collections::hash_map::{Entry, RandomState};
 use std::fs::File;
 use std::io::Read;
 use std::iter::FromIterator;
@@ -760,8 +760,84 @@ fn day_13_1(input: &str) -> usize {
 fn test_day_13_1() {
     assert_eq!(24, day_13_1("0: 3\n1: 2\n4: 4\n6: 4"));
     let input = read_file_as_string("./input/day_13.txt");
-    // 3476 too high
     assert_eq!(111, day_13_1(&input));
+}
+
+fn day_14_1(input: &str) -> usize {
+    let hash = day_10_2;
+    let mut res = 0;
+    for i in 0..128 {
+        let row = format!("{}-{}", input, i);
+        let h = hash(&row);
+        for c in h.chars() {
+            let n = c.to_digit(16).unwrap();
+            for i in 0..4 {
+                if n & (1 << (3 - i)) != 0 {
+                    res += 1;
+                }
+            }
+        }
+    }
+    res
+}
+
+#[test]
+fn test_day_14_1() {
+    assert_eq!(8108, day_14_1("flqrgnkx"));
+    assert_eq!(8194, day_14_1("uugsqrei"));
+}
+
+fn day_14_2(input: &str) -> usize {
+    let hash = day_10_2;
+    let mut map = HashMap::<(isize, isize), usize>::new();
+    for y in 0..128 {
+        let row = format!("{}-{}", input, y);
+        let h = hash(&row);
+        let mut x = 0;
+        for c in h.chars() {
+            let n = c.to_digit(16).unwrap();
+            for i in 0..4 {
+                if n & (1 << (3 - i)) != 0 {
+                    map.insert((x, y), 0);
+                }
+                x += 1;
+            }
+        }
+    }
+
+    let mut stack = Vec::<(isize, isize)>::new();
+    let mut region = 0;
+    for y in 0..128isize {
+        for x in 0..128isize {
+            if map.get(&(x, y)).is_none() {
+                continue;
+            }
+            if map[&(x, y)] != 0 {
+                continue;
+            }
+            region += 1;
+            stack.push((x, y));
+            while let Some((x, y)) = stack.pop() {
+                match map.entry((x, y)) {
+                    Entry::Occupied(mut e) => {
+                        if *e.get() == 0 {
+                            e.insert(region);
+                            stack.extend(&[(x + 1, y), (x - 1, y), (x, y - 1), (x, y + 1)]);
+                        };
+                    }
+                    Entry::Vacant(e) => {}
+                };
+            }
+        }
+    }
+
+    region
+}
+
+#[test]
+fn test_day_14_2() {
+    assert_eq!(1242, day_14_2("flqrgnkx"));
+    assert_eq!(1141, day_14_2("uugsqrei"));
 }
 
 fn read_file_as_string(name: &str) -> String {
