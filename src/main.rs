@@ -736,6 +736,61 @@ fn test_day_10_2() {
     assert_eq!("96de9657665675b51cd03f0b3528ba26", day_10_2(&input));
 }
 
+fn day_12_1(input: &str) -> usize {
+    let mut graph = HashMap::<usize, HashSet<usize>>::new();
+
+    fn insert_edge(graph: &mut HashMap<usize, HashSet<usize>>, from: usize, to: usize) {
+        graph
+            .entry(from)
+            .or_insert(HashSet::<usize>::new())
+            .insert(to);
+    }
+
+    for l in input.lines() {
+        let fields = l.split_whitespace().collect::<Vec<_>>();
+        let left = fields[0].parse::<usize>().unwrap();
+        let rights = fields
+            .iter()
+            .skip(2)
+            .map(|f| f.replace(",", "").parse::<usize>().unwrap());
+        for r in rights {
+            insert_edge(&mut graph, left, r);
+            insert_edge(&mut graph, r, left);
+        }
+    }
+
+    let mut size = 0;
+
+    let mut visited = HashSet::<usize>::new();
+    let mut stack = Vec::<usize>::new();
+
+    stack.push(0);
+
+    while let Some(x) = stack.pop() {
+        visited.insert(x);
+        size += 1;
+        if let Some(nodes) = graph.get(&x) {
+            for node in nodes {
+                if !visited.contains(node) {
+                    stack.push(*node);
+                }
+            }
+        }
+    }
+
+    size
+}
+
+#[test]
+fn test_day_12_1() {
+    //assert_eq!(
+    //6,
+    //day_12_1("0 <-> 2\n1 <-> 1\n2 <-> 0, 3, 4\n3 <-> 2, 4\n4 <-> 2, 3, 6\n5 <-> 6\n6 <-> 4, 5")
+    //);
+    let input = read_file_as_string("./input/day_12.txt");
+    assert_eq!(130, day_12_1(&input));
+}
+
 fn day_13_1(input: &str) -> usize {
     let entries = input.lines().map(|l| {
         let vs = l.split(": ").collect::<Vec<_>>();
@@ -818,14 +873,11 @@ fn day_14_2(input: &str) -> usize {
             region += 1;
             stack.push((x, y));
             while let Some((x, y)) = stack.pop() {
-                match map.entry((x, y)) {
-                    Entry::Occupied(mut e) => {
-                        if *e.get() == 0 {
-                            e.insert(region);
-                            stack.extend(&[(x + 1, y), (x - 1, y), (x, y - 1), (x, y + 1)]);
-                        };
-                    }
-                    Entry::Vacant(e) => {}
+                if let Entry::Occupied(mut e) = map.entry((x, y)) {
+                    if *e.get() == 0 {
+                        e.insert(region);
+                        stack.extend(&[(x + 1, y), (x - 1, y), (x, y - 1), (x, y + 1)]);
+                    };
                 };
             }
         }
