@@ -781,7 +781,7 @@ fn test_day_11_1() {
 }
 
 fn day_11_2(input: &str) -> usize {
-    let mut max = 0usize;
+    let mut max = 0isize;
 
     let mut x = 0isize;
     let mut y = 0isize;
@@ -815,24 +815,18 @@ fn day_11_2(input: &str) -> usize {
             }
             _ => {}
         }
-        if x.abs() as usize > max {
-            max = x.abs() as usize;
-        }
-        if y.abs() as usize > max {
-            max = y.abs() as usize;
-        }
-        if z.abs() as usize > max {
-            max = z.abs() as usize;
-        }
+        max = std::cmp::max(max, x.abs());
+        max = std::cmp::max(max, y.abs());
+        max = std::cmp::max(max, z.abs());
     }
 
-    max
+    max as usize
 }
 
 #[test]
 fn test_day_11_2() {
     let input = read_file_as_string("./input/day_11.txt");
-    assert_eq!(796, day_11_2(&input));
+    assert_eq!(1585, day_11_2(&input));
 }
 
 fn day_12_1(input: &str) -> usize {
