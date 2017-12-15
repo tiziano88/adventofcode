@@ -59,9 +59,7 @@ fn test_day_1_2() {
 fn day2_1(input: &str) -> String {
     let rows: Vec<Vec<u32>> = input
         .lines()
-        .map(|l| {
-            l.split_whitespace().map(|c| c.parse().unwrap()).collect()
-        })
+        .map(|l| l.split_whitespace().map(|c| c.parse().unwrap()).collect())
         .collect();
 
     let res: u32 = rows.iter()
@@ -83,9 +81,7 @@ fn test_day_2_1() {
 fn day2_2(input: &str) -> String {
     let rows: Vec<Vec<u32>> = input
         .lines()
-        .map(|l| {
-            l.split_whitespace().map(|c| c.parse().unwrap()).collect()
-        })
+        .map(|l| l.split_whitespace().map(|c| c.parse().unwrap()).collect())
         .collect();
 
     let res: u32 = rows.iter()
@@ -975,11 +971,13 @@ fn day_15_1(start_a: usize, start_b: usize) -> usize {
         current: start_b,
     };
 
-    generator_a
-        .zip(generator_b)
-        .take(40_000_000)
-        .filter(|&(a, b)| a & ((1 << 16) - 1) == b & ((1 << 16) - 1))
-        .count()
+    fn hash(v: usize) -> usize {
+        v & ((1 << 16) - 1)
+    }
+
+    let stream_a = generator_a.take(40_000_000).map(hash);
+    let stream_b = generator_b.take(40_000_000).map(hash);
+    stream_a.zip(stream_b).filter(|&(a, b)| a == b).count()
 }
 
 fn day_15_1_for(start_a: usize, start_b: usize) -> usize {
@@ -997,13 +995,61 @@ fn day_15_1_for(start_a: usize, start_b: usize) -> usize {
     res
 }
 
-fn main() {
-    assert_eq!(592, day_15_1_for(277, 349));
+#[test]
+fn test_day_15_1() {
+    assert_eq!(592, day_15_1(277, 349));
+}
+
+fn day_15_2(start_a: usize, start_b: usize) -> usize {
+    struct Generator {
+        factor: usize,
+        modulo: usize,
+
+        current: usize,
+    }
+
+    impl Iterator for Generator {
+        type Item = usize;
+
+        fn next(&mut self) -> Option<Self::Item> {
+            self.current = self.current * self.factor % self.modulo;
+            Some(self.current)
+        }
+    }
+
+    let generator_a = Generator {
+        factor: 16807,
+        modulo: 2147483647,
+        current: start_a,
+    };
+    let generator_b = Generator {
+        factor: 48271,
+        modulo: 2147483647,
+        current: start_b,
+    };
+
+    fn hash(v: usize) -> usize {
+        v & ((1 << 16) - 1)
+    }
+
+    fn divisible_by(v: usize, n: usize) -> bool {
+        v % n == 0
+    }
+
+    let stream_a = generator_a
+        .filter(|&a| divisible_by(a, 4))
+        .take(5_000_000)
+        .map(hash);
+    let stream_b = generator_b
+        .filter(|&a| divisible_by(a, 8))
+        .take(5_000_000)
+        .map(hash);
+    stream_a.zip(stream_b).filter(|&(a, b)| a == b).count()
 }
 
 #[test]
 fn test_day_15_2() {
-    assert_eq!(592, day_15_1(277, 349));
+    assert_eq!(320, day_15_2(277, 349));
 }
 
 fn read_file_as_string(name: &str) -> String {
