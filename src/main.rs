@@ -59,9 +59,7 @@ fn test_day_1_2() {
 fn day2_1(input: &str) -> String {
     let rows: Vec<Vec<u32>> = input
         .lines()
-        .map(|l| {
-            l.split_whitespace().map(|c| c.parse().unwrap()).collect()
-        })
+        .map(|l| l.split_whitespace().map(|c| c.parse().unwrap()).collect())
         .collect();
 
     let res: u32 = rows.iter()
@@ -83,9 +81,7 @@ fn test_day_2_1() {
 fn day2_2(input: &str) -> String {
     let rows: Vec<Vec<u32>> = input
         .lines()
-        .map(|l| {
-            l.split_whitespace().map(|c| c.parse().unwrap()).collect()
-        })
+        .map(|l| l.split_whitespace().map(|c| c.parse().unwrap()).collect())
         .collect();
 
     let res: u32 = rows.iter()
@@ -945,6 +941,42 @@ fn day_14_2(input: &str) -> usize {
 fn test_day_14_2() {
     assert_eq!(1242, day_14_2("flqrgnkx"));
     assert_eq!(1141, day_14_2("uugsqrei"));
+}
+
+fn day_15_1(start_a: usize, start_b: usize) -> usize {
+    struct Generator {
+        factor: usize,
+        modulo: usize,
+
+        current: usize,
+    }
+
+    impl Iterator for Generator {
+        type Item = usize;
+
+        fn next(&mut self) -> Option<Self::Item> {
+            self.current = self.current * self.factor % self.modulo;
+            Some(self.current)
+        }
+    }
+
+    let generator_a = Generator {
+        factor: 16807,
+        modulo: 2147483647,
+        current: start_a,
+    };
+    let generator_a = Generator {
+        factor: 16807,
+        modulo: 2147483647,
+        current: start_b,
+    };
+
+    0
+}
+
+#[test]
+fn test_day_15_2() {
+    assert_eq!(1242, day_15_1(277, 349));
 }
 
 fn read_file_as_string(name: &str) -> String {
