@@ -59,7 +59,9 @@ fn test_day_1_2() {
 fn day2_1(input: &str) -> String {
     let rows: Vec<Vec<u32>> = input
         .lines()
-        .map(|l| l.split_whitespace().map(|c| c.parse().unwrap()).collect())
+        .map(|l| {
+            l.split_whitespace().map(|c| c.parse().unwrap()).collect()
+        })
         .collect();
 
     let res: u32 = rows.iter()
@@ -81,7 +83,9 @@ fn test_day_2_1() {
 fn day2_2(input: &str) -> String {
     let rows: Vec<Vec<u32>> = input
         .lines()
-        .map(|l| l.split_whitespace().map(|c| c.parse().unwrap()).collect())
+        .map(|l| {
+            l.split_whitespace().map(|c| c.parse().unwrap()).collect()
+        })
         .collect();
 
     let res: u32 = rows.iter()
@@ -965,18 +969,41 @@ fn day_15_1(start_a: usize, start_b: usize) -> usize {
         modulo: 2147483647,
         current: start_a,
     };
-    let generator_a = Generator {
-        factor: 16807,
+    let generator_b = Generator {
+        factor: 48271,
         modulo: 2147483647,
         current: start_b,
     };
 
-    0
+    generator_a
+        .zip(generator_b)
+        .take(40_000_000)
+        .filter(|&(a, b)| a & ((1 << 16) - 1) == b & ((1 << 16) - 1))
+        .count()
+}
+
+fn day_15_1_for(start_a: usize, start_b: usize) -> usize {
+    let mut a = start_a;
+    let mut b = start_b;
+    let mut res = 0;
+    let modulo = 2147483647;
+    for _ in 0..40_000_000 {
+        a = a * 16807 % modulo;
+        b = b * 48271 % modulo;
+        if a & ((1 << 16) - 1) == b & ((1 << 16) - 1) {
+            res += 1;
+        }
+    }
+    res
+}
+
+fn main() {
+    assert_eq!(592, day_15_1_for(277, 349));
 }
 
 #[test]
 fn test_day_15_2() {
-    assert_eq!(1242, day_15_1(277, 349));
+    assert_eq!(592, day_15_1(277, 349));
 }
 
 fn read_file_as_string(name: &str) -> String {
