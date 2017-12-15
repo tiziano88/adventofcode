@@ -732,6 +732,109 @@ fn test_day_10_2() {
     assert_eq!("96de9657665675b51cd03f0b3528ba26", day_10_2(&input));
 }
 
+fn day_11_1(input: &str) -> usize {
+    let mut x = 0isize;
+    let mut y = 0isize;
+    let mut z = 0isize;
+
+    for d in input.trim().split(",") {
+        match d.as_ref() {
+            "n" => {
+                y += 1;
+                z -= 1;
+            }
+            "s" => {
+                y -= 1;
+                z += 1;
+            }
+            "ne" => {
+                x += 1;
+                z -= 1;
+            }
+            "sw" => {
+                x -= 1;
+                z += 1;
+            }
+            "se" => {
+                x += 1;
+                y -= 1;
+            }
+            "nw" => {
+                x -= 1;
+                y += 1;
+            }
+            _ => {}
+        }
+    }
+
+    std::cmp::max(std::cmp::max(x.abs(), y.abs()), z.abs()) as usize
+}
+
+#[test]
+fn test_day_11_1() {
+    assert_eq!(3, day_11_1("ne,ne,ne"));
+    assert_eq!(0, day_11_1("ne,ne,sw,sw"));
+    assert_eq!(2, day_11_1("ne,ne,s,s"));
+    assert_eq!(3, day_11_1("se,sw,se,sw,sw"));
+    let input = read_file_as_string("./input/day_11.txt");
+    assert_eq!(796, day_11_1(&input));
+}
+
+fn day_11_2(input: &str) -> usize {
+    let mut max = 0usize;
+
+    let mut x = 0isize;
+    let mut y = 0isize;
+    let mut z = 0isize;
+
+    for d in input.trim().split(",") {
+        match d.as_ref() {
+            "n" => {
+                y += 1;
+                z -= 1;
+            }
+            "s" => {
+                y -= 1;
+                z += 1;
+            }
+            "ne" => {
+                x += 1;
+                z -= 1;
+            }
+            "sw" => {
+                x -= 1;
+                z += 1;
+            }
+            "se" => {
+                x += 1;
+                y -= 1;
+            }
+            "nw" => {
+                x -= 1;
+                y += 1;
+            }
+            _ => {}
+        }
+        if x.abs() as usize > max {
+            max = x.abs() as usize;
+        }
+        if y.abs() as usize > max {
+            max = y.abs() as usize;
+        }
+        if z.abs() as usize > max {
+            max = z.abs() as usize;
+        }
+    }
+
+    max
+}
+
+#[test]
+fn test_day_11_2() {
+    let input = read_file_as_string("./input/day_11.txt");
+    assert_eq!(796, day_11_2(&input));
+}
+
 fn day_12_1(input: &str) -> usize {
     let mut graph = HashMap::<usize, HashSet<usize>>::new();
 
