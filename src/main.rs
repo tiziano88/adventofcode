@@ -59,7 +59,9 @@ fn test_day_1_2() {
 fn day2_1(input: &str) -> String {
     let rows: Vec<Vec<u32>> = input
         .lines()
-        .map(|l| l.split_whitespace().map(|c| c.parse().unwrap()).collect())
+        .map(|l| {
+            l.split_whitespace().map(|c| c.parse().unwrap()).collect()
+        })
         .collect();
 
     let res: u32 = rows.iter()
@@ -81,7 +83,9 @@ fn test_day_2_1() {
 fn day2_2(input: &str) -> String {
     let rows: Vec<Vec<u32>> = input
         .lines()
-        .map(|l| l.split_whitespace().map(|c| c.parse().unwrap()).collect())
+        .map(|l| {
+            l.split_whitespace().map(|c| c.parse().unwrap()).collect()
+        })
         .collect();
 
     let res: u32 = rows.iter()
@@ -1147,6 +1151,99 @@ fn day_15_2(start_a: usize, start_b: usize) -> usize {
 #[test]
 fn test_day_15_2() {
     assert_eq!(320, day_15_2(277, 349));
+}
+
+fn day_16_1(input: &str) -> String {
+    let mut current = [b' '; 16].iter().cloned().collect::<Vec<_>>();
+    let len = current.len();
+    for i in 0..16 {
+        current[i] = b'a' + i as u8;
+    }
+
+    for m in input.trim().split(",") {
+        let cs = m.chars().collect::<Vec<_>>();
+        match cs[0] {
+            's' => {
+                let p = cs.iter().skip(1).collect::<String>();
+                let x = p.parse::<usize>().unwrap();
+                current.rotate(len - x as usize);
+            }
+            'x' => {
+                let p = cs.iter().skip(1).collect::<String>();
+                let d = p.split("/").collect::<Vec<_>>();
+                let a = d[0].parse::<usize>().unwrap();
+                let b = d[1].parse::<usize>().unwrap();
+                current.swap(a, b);
+            }
+            'p' => {
+                let p = cs.iter().skip(1).collect::<String>();
+                let d = p.chars().collect::<Vec<_>>();
+                let a = current.iter().position(|&c| c == d[0] as u8).unwrap();
+                let b = current.iter().position(|&c| c == d[2] as u8).unwrap();
+                current.swap(a, b);
+            }
+            _ => {}
+        }
+    }
+
+    String::from_utf8(current).unwrap()
+}
+
+#[test]
+fn test_day_16_1() {
+    let input = read_file_as_string("./input/day_16.txt");
+    assert_eq!("hmefajngplkidocb", &day_16_1(&input));
+}
+
+fn day_16_2(input: &str) -> String {
+    let mut current = [b' '; 16].iter().cloned().collect::<Vec<_>>();
+    let len = current.len();
+    for i in 0..16 {
+        current[i] = b'a' + i as u8;
+    }
+
+    let initial = current.clone();
+
+    let mut iter = 0;
+    while iter < 1_000_000_000 {
+        for m in input.trim().split(",") {
+            let cs = m.chars().collect::<Vec<_>>();
+            match cs[0] {
+                's' => {
+                    let p = cs.iter().skip(1).collect::<String>();
+                    let x = p.parse::<usize>().unwrap();
+                    current.rotate(len - x as usize);
+                }
+                'x' => {
+                    let p = cs.iter().skip(1).collect::<String>();
+                    let d = p.split("/").collect::<Vec<_>>();
+                    let a = d[0].parse::<usize>().unwrap();
+                    let b = d[1].parse::<usize>().unwrap();
+                    current.swap(a, b);
+                }
+                'p' => {
+                    let p = cs.iter().skip(1).collect::<String>();
+                    let d = p.chars().collect::<Vec<_>>();
+                    let a = current.iter().position(|&c| c == d[0] as u8).unwrap();
+                    let b = current.iter().position(|&c| c == d[2] as u8).unwrap();
+                    current.swap(a, b);
+                }
+                _ => {}
+            }
+        }
+        iter += 1;
+        if current == initial {
+            iter = iter * (1_000_000_000 / iter);
+        }
+    }
+
+    String::from_utf8(current).unwrap()
+}
+
+#[test]
+fn test_day_16_2() {
+    let input = read_file_as_string("./input/day_16.txt");
+    assert_eq!("fbidepghmjklcnoa", &day_16_2(&input));
 }
 
 fn read_file_as_string(name: &str) -> String {
