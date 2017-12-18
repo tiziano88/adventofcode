@@ -1246,6 +1246,49 @@ fn test_day_16_2() {
     assert_eq!("fbidepghmjklcnoa", &day_16_2(&input));
 }
 
+fn day_17_1(input: usize) -> usize {
+    let mut current = vec![0];
+    let mut position = 0;
+    for i in 1..2018 {
+        position = (position + input) % current.len();
+        let c2 = current.clone();
+        current = Vec::new();
+        current.extend(c2.get(0..(position + 1)).unwrap());
+        current.push(i);
+        current.extend(c2.get((position + 1)..c2.len()).unwrap());
+        position = (position + 1) % current.len();
+    }
+    position = (position + 1) % current.len();
+    current[position]
+}
+
+#[test]
+fn test_day_17_1() {
+    assert_eq!(638, day_17_1(3));
+    assert_eq!(1311, day_17_1(371));
+}
+
+fn day_17_2(input: usize) -> usize {
+    let mut current = vec![0];
+    let mut position = 0;
+    for i in 1..50_000_001 {
+        position = (position + input) % current.len();
+        let c2 = current.clone();
+        current = Vec::new();
+        current.extend(c2.get(0..(position + 1)).unwrap());
+        current.push(i);
+        current.extend(c2.get((position + 1)..c2.len()).unwrap());
+        position = (position + 1) % current.len();
+    }
+    position = (position + 1) % current.len();
+    current[position]
+}
+
+#[test]
+fn test_day_17_2() {
+    //assert_eq!(1311, day_17_2(371));
+}
+
 fn read_file_as_string(name: &str) -> String {
     let mut input = String::new();
     File::open(name)
