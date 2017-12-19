@@ -676,7 +676,7 @@ fn day_10_1(input: &str) -> usize {
 #[test]
 fn test_day_10_1() {
     let input = read_file_as_string("./input/day_10.txt");
-    assert_eq!(6569, day_10_1(&input));
+    assert_eq!(212, day_10_1(&input));
 }
 
 fn day_10_2(input: &str) -> String {
@@ -948,7 +948,7 @@ fn day_13_1(input: &str) -> usize {
 fn test_day_13_1() {
     assert_eq!(24, day_13_1("0: 3\n1: 2\n4: 4\n6: 4"));
     let input = read_file_as_string("./input/day_13.txt");
-    assert_eq!(111, day_13_1(&input));
+    assert_eq!(1624, day_13_1(&input));
 }
 
 fn day_14_1(input: &str) -> usize {
