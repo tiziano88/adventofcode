@@ -169,25 +169,18 @@ fn test_day_3_1() {
 }
 
 fn day_3_2(input: usize) -> usize {
-    const MAX_SIZE: usize = 1000;
-    let mut cols = Vec::<Vec<usize>>::with_capacity(MAX_SIZE);
-    for _ in 0..MAX_SIZE {
-        let mut col = Vec::<usize>::with_capacity(MAX_SIZE);
-        for _ in 0..MAX_SIZE {
-            col.push(0);
-        }
-        cols.push(col);
-    }
-
+    #[derive(PartialEq, Eq, Hash, Clone)]
     struct Pos {
         x: i32,
         y: i32,
     }
+    let mut map = HashMap::<Pos, usize>::new();
 
-    fn get(cols: &Vec<Vec<usize>>, pos: &Pos) -> usize {
-        cols[(pos.x + MAX_SIZE as i32 / 2) as usize][(pos.y + MAX_SIZE as i32 / 2) as usize]
+
+    fn get(map: &HashMap<Pos, usize>, pos: &Pos) -> usize {
+        *map.get(pos).unwrap_or(&0)
     }
-    fn sum_adjacent(cols: &Vec<Vec<usize>>, pos: &Pos) -> usize {
+    fn sum_adjacent(cols: &HashMap<Pos, usize>, pos: &Pos) -> usize {
         let mut res = 0;
         for dx in [-1, 0, 1].iter() {
             for dy in [-1, 0, 1].iter() {
@@ -200,8 +193,8 @@ fn day_3_2(input: usize) -> usize {
         }
         res
     }
-    fn set(cols: &mut Vec<Vec<usize>>, pos: &Pos, v: usize) {
-        cols[(pos.x + MAX_SIZE as i32 / 2) as usize][(pos.y + MAX_SIZE as i32 / 2) as usize] = v
+    fn set(map: &mut HashMap<Pos, usize>, pos: &Pos, v: usize) {
+        map.insert(pos.clone(), v);
     }
 
     // (dx, dy)
@@ -210,15 +203,15 @@ fn day_3_2(input: usize) -> usize {
     let mut current_dir_index = 0;
     let mut current_pos: Pos = Pos { x: 0, y: 0 };
 
-    set(&mut cols, &current_pos, 1);
+    set(&mut map, &current_pos, 1);
 
     loop {
         let current_dir = dirs[current_dir_index];
         current_pos.x += current_dir.0;
         current_pos.y += current_dir.1;
 
-        let sum = sum_adjacent(&cols, &current_pos);
-        set(&mut cols, &current_pos, sum);
+        let sum = sum_adjacent(&map, &current_pos);
+        set(&mut map, &current_pos, sum);
         if sum > input {
             return sum;
         }
@@ -229,7 +222,7 @@ fn day_3_2(input: usize) -> usize {
             y: current_pos.y + tentative_dir.1,
         };
 
-        if get(&cols, &tentative_pos) == 0 {
+        if get(&map, &tentative_pos) == 0 {
             current_dir_index = (current_dir_index + 1) % dirs.len();
         }
     }
