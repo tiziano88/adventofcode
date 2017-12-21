@@ -1270,6 +1270,158 @@ fn test_day_17_2() {
     //assert_eq!(1311, day_17_2(371));
 }
 
+#[derive(PartialEq, Eq, Hash, Clone)]
+struct Vec3 {
+    x: i64,
+    y: i64,
+    z: i64,
+}
+
+#[derive(PartialEq, Eq, Hash, Clone)]
+struct Particle {
+    p: Vec3,
+    v: Vec3,
+    a: Vec3,
+}
+
+fn day_20_1(input: &str) -> usize {
+    fn parse_vec(i: &str) -> Vec3 {
+        let i = i.split(|c| c == '<' || c == '>').collect::<Vec<_>>();
+        let vs = i[1].split(",").collect::<Vec<_>>();
+        Vec3 {
+            x: vs[0].parse::<i64>().unwrap(),
+            y: vs[1].parse::<i64>().unwrap(),
+            z: vs[2].parse::<i64>().unwrap(),
+        }
+    }
+
+    fn particle_over(p: &Particle) -> bool {
+        p.p.x.signum() == p.v.x.signum() && p.v.x.signum() == p.a.x.signum()
+            && p.p.y.signum() == p.v.y.signum() && p.v.y.signum() == p.a.y.signum()
+            && p.p.z.signum() == p.v.z.signum() && p.v.z.signum() == p.a.z.signum()
+    }
+
+    fn particle_distance(p: &Particle) -> usize {
+        (p.p.x.abs() + p.p.y.abs() + p.p.z.abs()) as usize
+    }
+
+    fn particle_step(p: &mut Particle) {
+        p.v.x += p.a.x;
+        p.v.y += p.a.y;
+        p.v.z += p.a.z;
+
+        p.p.x += p.v.x;
+        p.p.y += p.v.y;
+        p.p.z += p.v.z;
+    }
+
+    let mut particles = input
+        .lines()
+        .map(|l| {
+            let s = l.split(", ").collect::<Vec<_>>();
+            Particle {
+                p: parse_vec(s[0]),
+                v: parse_vec(s[1]),
+                a: parse_vec(s[2]),
+            }
+        })
+        .collect::<Vec<_>>();
+
+    for i in 0..1_000_000 {
+        for mut p in particles.iter_mut() {
+            particle_step(&mut p);
+        }
+    }
+
+    let mut min = 0;
+    for i in 0..particles.len() {
+        if particle_distance(&particles[i]) < particle_distance(&particles[min]) {
+            min = i;
+        }
+    }
+
+    min
+}
+
+#[test]
+fn test_day_20_1() {
+    let input = read_file_as_string("./input/day_20.txt");
+    assert_eq!(91, day_20_1(&input));
+}
+
+fn day_20_2(input: &str) -> usize {
+    fn parse_vec(i: &str) -> Vec3 {
+        let i = i.split(|c| c == '<' || c == '>').collect::<Vec<_>>();
+        let vs = i[1].split(",").collect::<Vec<_>>();
+        Vec3 {
+            x: vs[0].parse::<i64>().unwrap(),
+            y: vs[1].parse::<i64>().unwrap(),
+            z: vs[2].parse::<i64>().unwrap(),
+        }
+    }
+
+    fn particle_over(p: &Particle) -> bool {
+        p.p.x.signum() == p.v.x.signum() && p.v.x.signum() == p.a.x.signum()
+            && p.p.y.signum() == p.v.y.signum() && p.v.y.signum() == p.a.y.signum()
+            && p.p.z.signum() == p.v.z.signum() && p.v.z.signum() == p.a.z.signum()
+    }
+
+    fn particle_distance(p: &Particle) -> usize {
+        (p.p.x.abs() + p.p.y.abs() + p.p.z.abs()) as usize
+    }
+
+    fn particle_step(p: &mut Particle) {
+        p.v.x += p.a.x;
+        p.v.y += p.a.y;
+        p.v.z += p.a.z;
+
+        p.p.x += p.v.x;
+        p.p.y += p.v.y;
+        p.p.z += p.v.z;
+    }
+
+    let mut particles = input
+        .lines()
+        .map(|l| {
+            let s = l.split(", ").collect::<Vec<_>>();
+            Particle {
+                p: parse_vec(s[0]),
+                v: parse_vec(s[1]),
+                a: parse_vec(s[2]),
+            }
+        })
+        .collect::<Vec<_>>();
+
+    for _ in 0..1_000_000 {
+        let mut pos = HashMap::<Vec3, HashSet<usize>>::new();
+        for i in 0..particles.len() {
+            let mut p = &mut particles[i];
+            particle_step(p);
+            let mut v = pos.entry(p.p.clone()).or_insert(HashSet::<usize>::new());
+            v.insert(i);
+        }
+        {
+            let mut rem = pos.values()
+                .filter(|p| p.len() >= 2)
+                .flat_map(|p| p)
+                .collect::<Vec<_>>();
+            rem.sort();
+            rem.reverse();
+            for p in rem {
+                particles.remove(*p);
+            }
+        }
+    }
+
+    particles.len()
+}
+
+#[test]
+fn test_day_20_2() {
+    let input = read_file_as_string("./input/day_20.txt");
+    assert_eq!(567, day_20_2(&input));
+}
+
 fn read_file_as_string(name: &str) -> String {
     let mut input = String::new();
     File::open(name)
