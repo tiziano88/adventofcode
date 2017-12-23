@@ -1,6 +1,7 @@
 #![feature(slice_rotate)]
 
-use std::collections::{HashMap, HashSet};
+use std::cell::Cell;
+use std::collections::{HashMap, HashSet, VecDeque};
 use std::collections::hash_map::{Entry, RandomState};
 use std::fs::File;
 use std::io::Read;
@@ -1272,32 +1273,9 @@ fn test_day_17_2() {
 
 fn day_18_1(input: &str) -> isize {
     let mut registers = HashMap::<String, isize>::new();
-    registers.insert("a".to_string(), 0);
-    registers.insert("b".to_string(), 0);
-    registers.insert("c".to_string(), 0);
-    registers.insert("d".to_string(), 0);
-    registers.insert("e".to_string(), 0);
-    registers.insert("f".to_string(), 0);
-    registers.insert("g".to_string(), 0);
-    registers.insert("h".to_string(), 0);
-    registers.insert("i".to_string(), 0);
-    registers.insert("j".to_string(), 0);
-    registers.insert("k".to_string(), 0);
-    registers.insert("l".to_string(), 0);
-    registers.insert("m".to_string(), 0);
-    registers.insert("n".to_string(), 0);
-    registers.insert("o".to_string(), 0);
-    registers.insert("p".to_string(), 0);
-    registers.insert("q".to_string(), 0);
-    registers.insert("r".to_string(), 0);
-    registers.insert("s".to_string(), 0);
-    registers.insert("t".to_string(), 0);
-    registers.insert("u".to_string(), 0);
-    registers.insert("v".to_string(), 0);
-    registers.insert("w".to_string(), 0);
-    registers.insert("x".to_string(), 0);
-    registers.insert("y".to_string(), 0);
-    registers.insert("z".to_string(), 0);
+    for i in 0..26 {
+        registers.insert(format!("{}", char::from(b'a' + i)), 0);
+    }
 
     let mut freq = 0;
 
@@ -1368,7 +1346,132 @@ fn day_18_1(input: &str) -> isize {
 #[test]
 fn test_day_18_1() {
     let input = read_file_as_string("./input/day_18.txt");
-    assert_eq!(6241, day_18_1(&input));
+    assert_eq!(8600, day_18_1(&input));
+}
+
+fn day_18_2(input: &str) -> isize {
+    let mut registers_0 = HashMap::<String, isize>::new();
+    for i in 0..26 {
+        registers_0.insert(format!("{}", char::from(b'a' + i)), 0);
+    }
+    registers_0.insert("p".to_string(), 0);
+
+    let mut registers_1 = HashMap::<String, isize>::new();
+    for i in 0..26 {
+        registers_1.insert(format!("{}", char::from(b'a' + i)), 0);
+    }
+    registers_0.insert("p".to_string(), 1);
+
+    fn eval(registers: &HashMap<String, isize>, v: &str) -> isize {
+        match v.parse::<isize>() {
+            Ok(v) => v,
+            Err(_) => registers[v],
+        }
+    }
+
+    let instructions = input.lines().collect::<Vec<_>>();
+
+    let mut pc_0 = Cell::new(0isize);
+    let mut pc_1 = Cell::new(0isize);
+
+    let mut send_0 = Cell::new(0isize);
+    let mut send_1 = Cell::new(0isize);
+
+    let mut queue_0 = VecDeque::new();
+    let mut queue_1 = VecDeque::new();
+
+    fn exec(
+        registers: &mut HashMap<String, isize>,
+        instruction: &str,
+        queue_in: &mut VecDeque<isize>,
+        queue_out: &mut VecDeque<isize>,
+        pc: &mut Cell<isize>,
+        send: &mut Cell<isize>,
+    ) {
+        let parts = instruction.split_whitespace().collect::<Vec<_>>();
+        match parts[0].as_ref() {
+            "snd" => {
+                let x = eval(&registers, parts[1]);
+                queue_out.push_front(x);
+                pc.set(pc.get() + 1);
+                send.set(send.get() + 1);
+            }
+            "set" => {
+                let y = eval(&registers, parts[2]);
+                registers.insert(parts[1].to_string(), y);
+                pc.set(pc.get() + 1);
+            }
+            "add" => {
+                let x = eval(&registers, parts[1]);
+                let y = eval(&registers, parts[2]);
+                registers.insert(parts[1].to_string(), x + y);
+                pc.set(pc.get() + 1);
+            }
+            "mul" => {
+                let x = eval(&registers, parts[1]);
+                let y = eval(&registers, parts[2]);
+                registers.insert(parts[1].to_string(), x * y);
+                pc.set(pc.get() + 1);
+            }
+            "mod" => {
+                let x = eval(&registers, parts[1]);
+                let y = eval(&registers, parts[2]);
+                registers.insert(parts[1].to_string(), x % y);
+                pc.set(pc.get() + 1);
+            }
+            "rcv" => if let Some(v) = queue_in.pop_back() {
+                registers.insert(parts[1].to_string(), v);
+                pc.set(pc.get() + 1);
+            },
+            "jgz" => {
+                let x = eval(&registers, parts[1]);
+                let y = eval(&registers, parts[2]);
+                if x > 0 {
+                    pc.set(pc.get() + y);
+                } else {
+                    pc.set(pc.get() + 1);
+                }
+            }
+            _ => panic!("error"),
+        }
+    }
+
+    while let (Some(instruction_0), Some(instruction_1)) = (
+        instructions.get(pc_0.get() as usize),
+        instructions.get(pc_1.get() as usize),
+    ) {
+        exec(
+            &mut registers_0,
+            instruction_0,
+            &mut queue_0,
+            &mut queue_1,
+            &mut pc_0,
+            &mut send_0,
+        );
+        exec(
+            &mut registers_1,
+            instruction_1,
+            &mut queue_1,
+            &mut queue_0,
+            &mut pc_1,
+            &mut send_1,
+        );
+        if instruction_0.split_whitespace().next().unwrap() == "rcv"
+            && instruction_1.split_whitespace().next().unwrap() == "rcv"
+            && queue_0.is_empty() && queue_1.is_empty()
+        {
+            println!("DEADLOCK");
+            break;
+        }
+    }
+
+    send_0.get()
+}
+
+#[test]
+fn test_day_18_2() {
+    let input = read_file_as_string("./input/day_18.txt");
+    assert_eq!(7239, day_18_2(&input));
 }
 
 #[derive(PartialEq, Eq, Hash, Clone)]
