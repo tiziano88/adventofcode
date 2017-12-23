@@ -1422,6 +1422,47 @@ fn test_day_20_2() {
     assert_eq!(567, day_20_2(&input));
 }
 
+fn day_21_1(input: &str) -> usize {
+    let mut map = HashMap::<Pos, bool>::new();
+
+    map.insert(Pos { x: 0, y: 0 }, false);
+    map.insert(Pos { x: 1, y: 0 }, true);
+    map.insert(Pos { x: 2, y: 0 }, false);
+    map.insert(Pos { x: 0, y: 1 }, false);
+    map.insert(Pos { x: 1, y: 1 }, false);
+    map.insert(Pos { x: 2, y: 1 }, true);
+    map.insert(Pos { x: 0, y: 2 }, true);
+    map.insert(Pos { x: 1, y: 2 }, true);
+    map.insert(Pos { x: 2, y: 2 }, true);
+
+    fn get_square(map: &HashMap<Pos, bool>, start: Pos, size: usize) -> HashMap<Pos, bool> {
+        let mut out = HashMap::<Pos, bool>::new();
+        for dx in 0..size {
+            let x = start.x + (dx as i32);
+            for dy in 0..size {
+                let y = start.y + (dy as i32);
+                out.insert(
+                    Pos {
+                        x: dx as i32,
+                        y: dy as i32,
+                    },
+                    *map.get(&Pos { x: x, y: y }).unwrap_or(&false),
+                );
+            }
+        }
+        out
+    }
+
+    0
+}
+
+#[test]
+fn test_day_21_1() {
+    let input = read_file_as_string("./input/day_21.txt");
+    assert_eq!(567, day_21_1(&input));
+}
+
+
 fn read_file_as_string(name: &str) -> String {
     let mut input = String::new();
     File::open(name)
