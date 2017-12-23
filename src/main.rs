@@ -1462,6 +1462,135 @@ fn test_day_21_1() {
     assert_eq!(567, day_21_1(&input));
 }
 
+fn day_23_1(input: &str) -> usize {
+    let mut registers = HashMap::<String, isize>::new();
+    registers.insert("a".to_string(), 0);
+    registers.insert("b".to_string(), 0);
+    registers.insert("c".to_string(), 0);
+    registers.insert("d".to_string(), 0);
+    registers.insert("e".to_string(), 0);
+    registers.insert("f".to_string(), 0);
+    registers.insert("g".to_string(), 0);
+    registers.insert("h".to_string(), 0);
+
+    fn eval(registers: &HashMap<String, isize>, v: &str) -> isize {
+        match v.parse::<isize>() {
+            Ok(v) => v,
+            Err(_) => registers[v],
+        }
+    }
+
+    let instructions = input.lines().collect::<Vec<_>>();
+
+    let mut count = 0;
+
+    let mut pc = 0i32;
+    while let Some(instruction) = instructions.get(pc as usize) {
+        let parts = instruction.split_whitespace().collect::<Vec<_>>();
+        match parts[0].as_ref() {
+            "set" => {
+                let y = eval(&registers, parts[2]);
+                registers.insert(parts[1].to_string(), y);
+                pc += 1;
+            }
+            "sub" => {
+                let x = eval(&registers, parts[1]);
+                let y = eval(&registers, parts[2]);
+                registers.insert(parts[1].to_string(), x - y);
+                pc += 1;
+            }
+            "mul" => {
+                let x = eval(&registers, parts[1]);
+                let y = eval(&registers, parts[2]);
+                registers.insert(parts[1].to_string(), x * y);
+                count += 1;
+                pc += 1;
+            }
+            "jnz" => {
+                let x = eval(&registers, parts[1]);
+                if x != 0 {
+                    pc += parts[2].parse::<i32>().unwrap();
+                } else {
+                    pc += 1;
+                }
+            }
+            _ => panic!("error"),
+        }
+    }
+
+    count
+}
+
+#[test]
+fn test_day_23_1() {
+    let input = read_file_as_string("./input/day_23.txt");
+    assert_eq!(6241, day_23_1(&input));
+}
+
+fn day_23_2(input: &str) -> isize {
+    let mut registers = HashMap::<String, isize>::new();
+    registers.insert("a".to_string(), 1);
+    registers.insert("b".to_string(), 0);
+    registers.insert("c".to_string(), 0);
+    registers.insert("d".to_string(), 0);
+    registers.insert("e".to_string(), 0);
+    registers.insert("f".to_string(), 0);
+    registers.insert("g".to_string(), 0);
+    registers.insert("h".to_string(), 0);
+
+    fn eval(registers: &HashMap<String, isize>, v: &str) -> isize {
+        match v.parse::<isize>() {
+            Ok(v) => v,
+            Err(_) => registers[v],
+        }
+    }
+
+    let instructions = input.lines().collect::<Vec<_>>();
+
+    let mut pc = 0i32;
+    while let Some(instruction) = instructions.get(pc as usize) {
+        let parts = instruction.split_whitespace().collect::<Vec<_>>();
+        match parts[0].as_ref() {
+            "set" => {
+                let y = eval(&registers, parts[2]);
+                registers.insert(parts[1].to_string(), y);
+                pc += 1;
+                if parts[1] == "h" {
+                    println!("set {} {}", parts[1], y);
+                }
+            }
+            "sub" => {
+                let x = eval(&registers, parts[1]);
+                let y = eval(&registers, parts[2]);
+                registers.insert(parts[1].to_string(), x - y);
+                pc += 1;
+            }
+            "mul" => {
+                let x = eval(&registers, parts[1]);
+                let y = eval(&registers, parts[2]);
+                registers.insert(parts[1].to_string(), x * y);
+                pc += 1;
+            }
+            "jnz" => {
+                let x = eval(&registers, parts[1]);
+                if x != 0 {
+                    pc += parts[2].parse::<i32>().unwrap();
+                } else {
+                    pc += 1;
+                }
+            }
+            _ => panic!("error"),
+        }
+    }
+
+    registers["h"]
+}
+
+#[test]
+fn test_day_23_2() {
+    let input = read_file_as_string("./input/day_23.txt");
+    assert_eq!(6241, day_23_2(&input));
+}
 
 fn read_file_as_string(name: &str) -> String {
     let mut input = String::new();
