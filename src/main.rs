@@ -113,18 +113,18 @@ fn test_day_2_2() {
 }
 
 #[derive(PartialEq, Eq, Hash, Clone)]
-struct Pos {
+struct Vec2 {
     x: i32,
     y: i32,
 }
 
 fn day_3_1(input: usize) -> usize {
-    let mut map = HashMap::<Pos, usize>::new();
+    let mut map = HashMap::<Vec2, usize>::new();
 
-    fn get(map: &HashMap<Pos, usize>, pos: &Pos) -> usize {
+    fn get(map: &HashMap<Vec2, usize>, pos: &Vec2) -> usize {
         *map.get(pos).unwrap_or(&0)
     }
-    fn set(map: &mut HashMap<Pos, usize>, pos: &Pos, v: usize) {
+    fn set(map: &mut HashMap<Vec2, usize>, pos: &Vec2, v: usize) {
         map.insert(pos.clone(), v);
     }
 
@@ -132,7 +132,7 @@ fn day_3_1(input: usize) -> usize {
     let dirs = [(1, 0), (0, 1), (-1, 0), (0, -1)];
 
     let mut current_dir_index = 0;
-    let mut current_pos: Pos = Pos { x: 0, y: 0 };
+    let mut current_pos: Vec2 = Vec2 { x: 0, y: 0 };
 
     set(&mut map, &current_pos, 1);
 
@@ -144,7 +144,7 @@ fn day_3_1(input: usize) -> usize {
         set(&mut map, &current_pos, i);
 
         let tentative_dir = dirs[(current_dir_index + 1) % dirs.len()];
-        let tentative_pos = Pos {
+        let tentative_pos = Vec2 {
             x: current_pos.x + tentative_dir.0,
             y: current_pos.y + tentative_dir.1,
         };
@@ -163,20 +163,20 @@ fn test_day_3_1() {
 }
 
 fn day_3_2(input: usize) -> usize {
-    let mut map = HashMap::<Pos, usize>::new();
+    let mut map = HashMap::<Vec2, usize>::new();
 
-    fn get(map: &HashMap<Pos, usize>, pos: &Pos) -> usize {
+    fn get(map: &HashMap<Vec2, usize>, pos: &Vec2) -> usize {
         *map.get(pos).unwrap_or(&0)
     }
-    fn set(map: &mut HashMap<Pos, usize>, pos: &Pos, v: usize) {
+    fn set(map: &mut HashMap<Vec2, usize>, pos: &Vec2, v: usize) {
         map.insert(pos.clone(), v);
     }
 
-    fn sum_adjacent(cols: &HashMap<Pos, usize>, pos: &Pos) -> usize {
+    fn sum_adjacent(cols: &HashMap<Vec2, usize>, pos: &Vec2) -> usize {
         let mut res = 0;
         for dx in [-1, 0, 1].iter() {
             for dy in [-1, 0, 1].iter() {
-                let pos2 = Pos {
+                let pos2 = Vec2 {
                     x: pos.x + dx,
                     y: pos.y + dy,
                 };
@@ -190,7 +190,7 @@ fn day_3_2(input: usize) -> usize {
     let dirs = [(1, 0), (0, 1), (-1, 0), (0, -1)];
 
     let mut current_dir_index = 0;
-    let mut current_pos: Pos = Pos { x: 0, y: 0 };
+    let mut current_pos: Vec2 = Vec2 { x: 0, y: 0 };
 
     set(&mut map, &current_pos, 1);
 
@@ -206,7 +206,7 @@ fn day_3_2(input: usize) -> usize {
         }
 
         let tentative_dir = dirs[(current_dir_index + 1) % dirs.len()];
-        let tentative_pos = Pos {
+        let tentative_pos = Vec2 {
             x: current_pos.x + tentative_dir.0,
             y: current_pos.y + tentative_dir.1,
         };
@@ -1627,30 +1627,30 @@ fn test_day_20_2() {
 }
 
 fn day_21_1(input: &str) -> usize {
-    let mut map = HashMap::<Pos, bool>::new();
+    let mut map = HashMap::<Vec2, bool>::new();
 
-    map.insert(Pos { x: 0, y: 0 }, false);
-    map.insert(Pos { x: 1, y: 0 }, true);
-    map.insert(Pos { x: 2, y: 0 }, false);
-    map.insert(Pos { x: 0, y: 1 }, false);
-    map.insert(Pos { x: 1, y: 1 }, false);
-    map.insert(Pos { x: 2, y: 1 }, true);
-    map.insert(Pos { x: 0, y: 2 }, true);
-    map.insert(Pos { x: 1, y: 2 }, true);
-    map.insert(Pos { x: 2, y: 2 }, true);
+    map.insert(Vec2 { x: 0, y: 0 }, false);
+    map.insert(Vec2 { x: 1, y: 0 }, true);
+    map.insert(Vec2 { x: 2, y: 0 }, false);
+    map.insert(Vec2 { x: 0, y: 1 }, false);
+    map.insert(Vec2 { x: 1, y: 1 }, false);
+    map.insert(Vec2 { x: 2, y: 1 }, true);
+    map.insert(Vec2 { x: 0, y: 2 }, true);
+    map.insert(Vec2 { x: 1, y: 2 }, true);
+    map.insert(Vec2 { x: 2, y: 2 }, true);
 
-    fn get_square(map: &HashMap<Pos, bool>, start: Pos, size: usize) -> HashMap<Pos, bool> {
-        let mut out = HashMap::<Pos, bool>::new();
+    fn get_square(map: &HashMap<Vec2, bool>, start: Vec2, size: usize) -> HashMap<Vec2, bool> {
+        let mut out = HashMap::<Vec2, bool>::new();
         for dx in 0..size {
             let x = start.x + (dx as i32);
             for dy in 0..size {
                 let y = start.y + (dy as i32);
                 out.insert(
-                    Pos {
+                    Vec2 {
                         x: dx as i32,
                         y: dy as i32,
                     },
-                    *map.get(&Pos { x: x, y: y }).unwrap_or(&false),
+                    *map.get(&Vec2 { x: x, y: y }).unwrap_or(&false),
                 );
             }
         }
