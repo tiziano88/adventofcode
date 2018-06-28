@@ -1,3 +1,4 @@
+#![feature(conservative_impl_trait)]
 #![feature(slice_rotate)]
 
 use std::cell::Cell;
@@ -389,40 +390,21 @@ fn test_day_6_2() {
 }
 
 fn day_7_1(input: &str) -> String {
-    struct Node {
-        parent: Option<String>,
-    }
-
-    let mut nodes = HashMap::<String, Node>::new();
+    let mut node_to_parent = HashMap::<String, String>::new();
     for l in input.lines() {
         let fields = l.split_whitespace().collect::<Vec<_>>();
 
         let parent = fields[0].to_string();
-        if !nodes.contains_key(&parent) {
-            nodes.insert(parent.clone(), Node { parent: None });
-        }
 
         let children = fields.iter().skip(3).map(|f| f.replace(",", ""));
         for child in children {
-            nodes.insert(
-                child.clone(),
-                Node {
-                    parent: Some(parent.clone()),
-                },
-            );
+            node_to_parent.insert(child.clone(), parent.clone());
         }
     }
 
-    let mut current = nodes.keys().next().unwrap().clone();
-    loop {
-        match nodes[&current].parent {
-            Some(ref n) => {
-                current = n.clone();
-            }
-            None => {
-                break;
-            }
-        }
+    let mut current = node_to_parent.keys().next().unwrap().clone();
+    while let Some(n) = node_to_parent.get(&current) {
+        current = n.clone();
     }
 
     current
@@ -432,6 +414,85 @@ fn day_7_1(input: &str) -> String {
 fn test_day_7_1() {
     let input = read_file_as_string("./input/day_7.txt");
     assert_eq!("cyrupz", &day_7_1(&input));
+}
+
+fn day_7_2(input: &str) -> String {
+    let mut node_to_parent = HashMap::<String, String>::new();
+    let mut node_to_weight = HashMap::<String, usize>::new();
+    for l in input.lines() {
+        let fields = l.split_whitespace().collect::<Vec<_>>();
+
+        let parent = fields[0].to_string();
+
+        let weight = fields[1]
+            .replace("(", "")
+            .replace(")", "")
+            .parse::<usize>()
+            .unwrap();
+        node_to_weight.insert(parent.clone(), weight);
+
+        let children = fields.iter().skip(3).map(|f| f.replace(",", ""));
+        for child in children {
+            node_to_parent.insert(child.clone(), parent.clone());
+        }
+    }
+
+    fn children(node_to_parent: &HashMap<String, String>, node: &str) -> Vec<String> {
+        node_to_parent
+            .iter()
+            .filter(|&(_, v)| v == node)
+            .map(|(k, _)| k)
+            .cloned()
+            .collect()
+    }
+
+    fn total_weight(
+        node_to_parent: &HashMap<String, String>,
+        node_to_weight: &HashMap<String, usize>,
+        node: &str,
+    ) -> usize {
+        let mut w = node_to_weight[node];
+        for n in children(node_to_parent, &node) {
+            w += total_weight(node_to_parent, node_to_weight, &n);
+        }
+        w
+    }
+
+    let mut current = node_to_parent.keys().next().unwrap().clone();
+    while let Some(n) = node_to_parent.get(&current) {
+        current = n.clone();
+    }
+
+    'outer: loop {
+        let mut w = HashMap::<String, usize>::new();
+        for c in children(&node_to_parent, &current) {
+            w.insert(
+                c.clone(),
+                total_weight(&node_to_parent, &node_to_weight, &c),
+            );
+        }
+        for n in w.values() {
+            let ww = w.iter().filter(|&(k, v)| v == n).collect::<Vec<_>>();
+            if ww.len() == 1 {
+                current = ww[0].0.clone();
+                continue 'outer;
+            }
+        }
+        break 'outer;
+    }
+
+    println!(
+        "t: {}",
+        total_weight(&node_to_parent, &node_to_weight, &current)
+    );
+
+    current
+}
+
+#[test]
+fn test_day_7_2() {
+    let input = read_file_as_string("./input/day_7.txt");
+    assert_eq!("cyrupz", &day_7_2(&input));
 }
 
 fn day_8_1(input: &str) -> i32 {
